@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>5S La Roldana</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --verde: #2D6A4F; --verde-light: #D8F3DC; --verde-text: #1B4332;
+  --rojo: #9B2335; --rojo-light: #FEE2E2; --rojo-text: #7F1D1D;
+  --bg: #F7F5F0; --card: #FFFFFF; --border: #E5E0D8;
+  --text: #1C1917; --muted: #78716C; --accent: #C8A96E; --dark: #1C1917;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 110px; }
+.screen { display: none !important; }
+.screen.active { display: block !important; }
+
+/* INTRO */
+.intro-wrap { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px 20px; text-align: center; background: var(--dark); }
+.intro-logo { width: 72px; height: 72px; background: var(--accent); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto 20px; }
+.intro-wrap h1 { font-size: 26px; font-weight: 600; color: white; margin-bottom: 8px; line-height: 1.2; }
+.intro-wrap p { font-size: 14px; color: #A8A29E; margin-bottom: 28px; line-height: 1.6; }
+.intro-steps { background: #292524; border-radius: 14px; padding: 20px; margin-bottom: 28px; text-align: left; width: 100%; max-width: 340px; }
+.intro-step { display: flex; gap: 12px; margin-bottom: 14px; align-items: flex-start; }
+.intro-step:last-child { margin-bottom: 0; }
+.step-num { width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: var(--dark); font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.step-txt { font-size: 13px; color: #D6D3D1; line-height: 1.5; }
+.step-txt strong { color: white; }
+.btn-start { background: var(--accent); color: var(--dark); border: none; border-radius: 14px; padding: 16px; font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; width: 100%; max-width: 340px; }
+
+/* TOPBAR */
+.topbar { background: var(--dark); padding: 14px 16px 0; position: sticky; top: 0; z-index: 100; }
+.topbar-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.topbar h2 { font-size: 15px; font-weight: 600; color: white; }
+.topbar-sub { font-size: 11px; color: #A8A29E; font-family: 'DM Mono', monospace; }
+.pct-badge { font-size: 13px; font-weight: 700; padding: 5px 12px; border-radius: 20px; font-family: 'DM Mono', monospace; }
+.pct-badge.bueno { background: var(--verde-light); color: var(--verde-text); }
+.pct-badge.malo { background: var(--rojo-light); color: var(--rojo-text); }
+.pct-badge.neutro { background: var(--accent); color: var(--dark); }
+.prog-track { height: 3px; background: #44403C; border-radius: 2px; }
+.prog-fill { height: 3px; border-radius: 2px; transition: width 0.3s, background 0.3s; width: 0%; background: var(--accent); }
+.prog-label { font-size: 11px; color: #A8A29E; padding: 6px 0 12px; font-family: 'DM Mono', monospace; }
+
+/* STATS */
+.stats-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 6px; padding: 10px 12px; background: var(--dark); }
+.stat { background: #292524; border-radius: 8px; padding: 8px 4px; text-align: center; }
+.stat-n { font-size: 22px; font-weight: 600; font-family: 'DM Mono', monospace; }
+.stat-l { font-size: 9px; color: #A8A29E; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 1px; }
+.g { color: #52B788; } .r { color: #F87171; } .w { color: #A8A29E; }
+
+/* SECCIONES */
+.section-card { margin: 10px 12px; background: var(--card); border-radius: 14px; border: 1px solid var(--border); overflow: hidden; }
+.sec-head { padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; background: #FAFAF8; border-bottom: 1px solid var(--border); }
+.sec-head h3 { font-size: 13px; font-weight: 600; cursor: pointer; flex: 1; }
+.sec-actions { display: flex; align-items: center; gap: 8px; }
+.sec-ok-count { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--verde); font-weight: 600; }
+.chevron { color: var(--muted); transition: transform 0.2s; cursor: pointer; font-size: 12px; }
+.btn-add-sec { background: var(--accent); color: var(--dark); border: none; border-radius: 6px; width: 28px; height: 28px; font-size: 18px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.collapsed .chevron { transform: rotate(-90deg); }
+.collapsed .items-wrap { display: none; }
+
+/* ITEMS NORMALES */
+.item-row { display: flex; align-items: center; padding: 10px 14px; gap: 10px; border-bottom: 1px solid #F5F3EF; border-left: 3px solid transparent; transition: border-left-color 0.15s; }
+.item-row.st-ok { border-left-color: var(--verde); background: #FAFFFE; }
+.item-row.st-nok { border-left-color: var(--rojo); background: #FFFAFA; }
+.item-info { flex: 1; min-width: 0; }
+.item-name { font-size: 13px; font-weight: 500; line-height: 1.3; }
+.item-range { font-size: 10px; color: var(--muted); font-family: 'DM Mono', monospace; margin-top: 2px; }
+.btn-group { display: flex; gap: 5px; flex-shrink: 0; }
+.btn-ok { width: 40px; height: 40px; border-radius: 10px; border: 1.5px solid #E5E0D8; background: #F7F5F0; cursor: pointer; font-size: 16px; font-weight: 700; display: flex; align-items: center; justify-content: center; color: #A8A29E; transition: all 0.15s; }
+.btn-ok.on { background: var(--verde-light); border-color: var(--verde); color: var(--verde-text); }
+.btn-nok { width: 40px; height: 40px; border-radius: 10px; border: 1.5px solid #E5E0D8; background: #F7F5F0; cursor: pointer; font-size: 16px; font-weight: 700; display: flex; align-items: center; justify-content: center; color: #A8A29E; transition: all 0.15s; }
+.btn-nok.on { background: var(--rojo-light); border-color: var(--rojo); color: var(--rojo-text); }
+.btn-edit { width: 34px; height: 34px; border-radius: 8px; border: 1px solid #E5E0D8; background: none; cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; color: var(--muted); flex-shrink: 0; }
+
+/* PREGUNTA INNECESARIOS — al final de cada sección */
+.innec-row { display: flex; align-items: center; padding: 12px 14px; gap: 10px; background: #F7F5F0; border-top: 1px dashed var(--border); border-left: 3px solid transparent; }
+.innec-row.st-ok { border-left-color: var(--verde); background: #F0FAF4; }
+.innec-row.st-nok { border-left-color: var(--rojo); background: #FDF4F4; }
+.innec-label { flex: 1; }
+.innec-label .innec-title { font-size: 12px; font-weight: 600; color: var(--text); }
+.innec-label .innec-sub { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+/* BOTTOM BAR */
+.bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid var(--border); padding: 12px 16px; display: flex; gap: 8px; }
+.btn-main { flex: 1; padding: 14px; border-radius: 12px; border: none; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; }
+.btn-primary { background: var(--dark); color: white; }
+.btn-sec2 { background: var(--bg); color: var(--text); border: 1px solid var(--border); flex: 0 0 auto; padding: 14px 16px; font-family: 'DM Sans', sans-serif; font-size: 16px; cursor: pointer; border-radius: 12px; }
+
+/* MODAL */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 300; display: flex; align-items: flex-end; justify-content: center; }
+.modal-box { background: white; border-radius: 20px 20px 0 0; padding: 20px 20px 40px; width: 100%; max-width: 500px; }
+.modal-box h3 { font-size: 15px; font-weight: 600; margin-bottom: 16px; }
+.modal-box label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 4px; margin-top: 10px; }
+.modal-box input { width: 100%; padding: 10px 12px; font-size: 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; }
+.modal-row2 { display: flex; gap: 8px; }
+.modal-row2 input { flex: 1; }
+.modal-btns { display: flex; gap: 8px; margin-top: 20px; }
+.mbtn-save { flex: 1; padding: 13px; border-radius: 10px; border: none; background: var(--dark); color: white; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; }
+.mbtn-del { padding: 13px 16px; border-radius: 10px; border: none; background: var(--rojo-light); color: var(--rojo-text); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; }
+.mbtn-cancel { padding: 13px 16px; border-radius: 10px; border: 1px solid var(--border); background: none; color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; }
+
+/* PANTALLA OBSERVACIONES */
+.obs-wrap { padding: 20px 16px 120px; }
+.obs-wrap h2 { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
+.obs-wrap p { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+.resultado-box { border-radius: 14px; padding: 20px; margin-bottom: 16px; text-align: center; }
+.resultado-box.bueno { background: var(--verde-light); }
+.resultado-box.malo { background: var(--rojo-light); }
+.resultado-pct { font-size: 52px; font-weight: 700; font-family: 'DM Mono', monospace; }
+.resultado-pct.g { color: var(--verde-text); }
+.resultado-pct.r { color: var(--rojo-text); }
+.resultado-lbl { font-size: 13px; font-weight: 600; margin-top: 6px; }
+.resultado-lbl.g { color: var(--verde-text); }
+.resultado-lbl.r { color: var(--rojo-text); }
+.done-card { background: var(--card); border-radius: 14px; border: 1px solid var(--border); padding: 16px; width: 100%; margin-bottom: 12px; }
+.done-card h3 { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin-bottom: 12px; }
+.done-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid #F5F3EF; font-size: 14px; }
+.done-row:last-child { border-bottom: none; }
+.done-badge { padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.issue-item { display: flex; align-items: flex-start; gap: 8px; padding: 7px 0; border-bottom: 1px solid #F5F3EF; font-size: 13px; }
+.issue-item:last-child { border-bottom: none; }
+.issue-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--rojo); flex-shrink: 0; margin-top: 4px; }
+.obs-wrap textarea { width: 100%; padding: 12px; font-size: 14px; border: 1px solid var(--border); border-radius: 12px; background: white; color: var(--text); font-family: 'DM Sans', sans-serif; resize: none; height: 110px; }
+
+/* PANTALLA FINAL */
+.done-wrap { padding: 24px 16px 120px; display: flex; flex-direction: column; align-items: center; }
+.done-icon { font-size: 56px; margin: 16px 0 12px; }
+.done-wrap h2 { font-size: 22px; font-weight: 600; margin-bottom: 6px; }
+.done-wrap > p { font-size: 14px; color: var(--muted); margin-bottom: 20px; text-align: center; }
+.btn-copy { background: var(--dark); color: white; border: none; border-radius: 12px; padding: 15px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; width: 100%; margin-bottom: 8px; }
+.btn-nueva { background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 12px; padding: 15px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; width: 100%; }
+</style>
+</head>
+<body>
+
+<!-- PANTALLA 1: INTRO -->
+<div id="sc-intro" class="screen active">
+  <div class="intro-wrap">
+    <div class="intro-logo">🍽️</div>
+    <h1>Checklist 5S<br>La Roldana</h1>
+    <p>Auditoría semanal de zonas.<br>Rápido, simple, desde el móvil.</p>
+    <div class="intro-steps">
+      <div class="intro-step"><div class="step-num">1</div><div class="step-txt">Recorre cada zona con el móvil en mano</div></div>
+      <div class="intro-step"><div class="step-num">2</div><div class="step-txt">Para cada producto pulsa <strong>✓ OK</strong> o <strong>✗ No OK</strong></div></div>
+      <div class="intro-step"><div class="step-num">3</div><div class="step-txt">Al final de cada zona confirma si hay <strong>innecesarios</strong> o no</div></div>
+      <div class="intro-step"><div class="step-num">4</div><div class="step-txt">Usa <strong>✏️</strong> para editar o borrar · <strong>+</strong> para añadir productos</div></div>
+      <div class="intro-step"><div class="step-num">5</div><div class="step-txt">Al terminar pulsa <strong>"Enviar a Castro"</strong></div></div>
+    </div>
+    <button class="btn-start" onclick="goAudit()">Empezar auditoría →</button>
+  </div>
+</div>
+
+<!-- PANTALLA 2: AUDITORÍA -->
+<div id="sc-audit" class="screen">
+  <div class="topbar">
+    <div class="topbar-row">
+      <div><h2>🍽️ La Roldana — 5S</h2><p class="topbar-sub" id="fecha"></p></div>
+      <div class="pct-badge neutro" id="pct-badge">0%</div>
+    </div>
+    <div class="prog-track"><div class="prog-fill" id="prog"></div></div>
+    <div class="prog-label" id="prog-txt">0 de 0 revisados</div>
+  </div>
+  <div class="stats-row">
+    <div class="stat"><div class="stat-n g" id="s-ok">0</div><div class="stat-l">OK</div></div>
+    <div class="stat"><div class="stat-n r" id="s-nok">0</div><div class="stat-l">No OK</div></div>
+    <div class="stat"><div class="stat-n w" id="s-pen">0</div><div class="stat-l">Pendientes</div></div>
+  </div>
+  <div id="audit-body" style="padding-bottom:20px;"></div>
+  <div class="bottom-bar">
+    <button class="btn-sec2" onclick="resetAll()">↺</button>
+    <button class="btn-main btn-primary" onclick="goObs()">Continuar →</button>
+  </div>
+</div>
+
+<!-- PANTALLA 3: OBSERVACIONES -->
+<div id="sc-obs" class="screen">
+  <div class="obs-wrap">
+    <h2>Resultado</h2>
+    <p>Revisa y añade observaciones antes de enviar.</p>
+    <div class="resultado-box" id="res-box">
+      <div class="resultado-pct" id="res-pct">0%</div>
+      <div class="resultado-lbl" id="res-lbl"></div>
+    </div>
+    <div class="done-card" id="obs-issues"></div>
+    <label style="font-size:13px;font-weight:500;display:block;margin-bottom:8px;">Observaciones (opcional)</label>
+    <textarea id="obs-text" placeholder="Escribe aquí cualquier observación importante..."></textarea>
+  </div>
+  <div class="bottom-bar">
+    <button class="btn-sec2" onclick="mostrar('sc-audit')">← Volver</button>
+    <button class="btn-main btn-primary" onclick="goFinal()">Enviar a Castro →</button>
+  </div>
+</div>
+
+<!-- PANTALLA 4: FINAL -->
+<div id="sc-done" class="screen">
+  <div class="done-wrap">
+    <div class="done-icon" id="done-icon">✅</div>
+    <h2 id="done-titulo">¡Auditoría lista!</h2>
+    <p>Copia el informe y mándalo<br>a Castro por WhatsApp</p>
+    <div class="done-card" id="done-resumen"></div>
+    <div class="done-card" id="done-issues"></div>
+    <button class="btn-copy" onclick="copiarInforme()">📋 Copiar informe para WhatsApp</button>
+    <button class="btn-nueva" onclick="goStart()">← Nueva auditoría</button>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" style="display:none;" onclick="cerrarModalFuera(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <h3 id="modal-titulo">Editar producto</h3>
+    <label>Nombre del producto</label>
+    <input type="text" id="modal-nombre" placeholder="Ej: Coca Cola" />
+    <label>Cantidades</label>
+    <div class="modal-row2">
+      <input type="number" id="modal-min" placeholder="Mínimo" />
+      <input type="number" id="modal-max" placeholder="Máximo" />
+    </div>
+    <div class="modal-btns">
+      <button class="mbtn-del" id="modal-btn-del" onclick="eliminarModal()">🗑 Borrar</button>
+      <button class="mbtn-cancel" onclick="cerrarModal()">Cancelar</button>
+      <button class="mbtn-save" onclick="guardarModal()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var cambios = [];
+var DB = {
+  "CAMARA 1 — Vinos Blancos Copeo": [
+    {n:"Tercios Estrella Galicia Normal",min:42,max:70},{n:"Copeo Blanco de Blancos",min:1,max:1},
+    {n:"Copeo Puerta Bonita",min:1,max:1},{n:"Copeo Godello",min:1,max:1},
+    {n:"Copeo Ribeiro Flower on the Bee",min:1,max:1},{n:"Copeo Blanco Andaluz Ojo de Gallo",min:1,max:1},
+    {n:"Copeo PortaMillo",min:1,max:1},{n:"Copeo Manzanilla Muy Fina",min:1,max:1},
+    {n:"Copeo NOC Rose",min:1,max:1},{n:"Botella Casera Limón",min:6,max:10},
+    {n:"Botella Casera",min:3,max:5},{n:"Botellas Borsao",min:3,max:6}
+  ],
+  "CAMARA 2 — Vinos Blancos Stock": [
+    {n:"Puerta Bonita",min:3,max:6},{n:"Ribeiro Flower on the Bee II",min:3,max:6},
+    {n:"Godello",min:3,max:6},{n:"Blanco de Blancos",min:3,max:6},{n:"Tosca",min:3,max:6},
+    {n:"Manzanilla Muy Fina",min:3,max:6},{n:"Ojo de Gallo",min:3,max:6},
+    {n:"El Muelle",min:3,max:6},{n:"Portamillo",min:3,max:6},{n:"Insensatos",min:3,max:6},
+    {n:"NOC Blanco",min:3,max:6},{n:"NOC Rose",min:1,max:1},
+    {n:"Cesar Florido",min:1,max:2},{n:"Solear",min:1,max:2},{n:"Eva Cream",min:1,max:2}
+  ],
+  "CAMARA 3 — Refrescos": [
+    {n:"Coca Cola",min:30,max:50},{n:"Coca Cola Zero",min:30,max:50},
+    {n:"Fanta Limón",min:10,max:20},{n:"Fanta Naranja",min:10,max:20},
+    {n:"Bitter Kas",min:6,max:8},{n:"Royal Bliss Pink",min:10,max:15},
+    {n:"Royal Bliss",min:3,max:4},{n:"Sprite",min:10,max:15}
+  ],
+  "CAMARA 4 — Cervezas Especiales": [
+    {n:"Tercio 0.0 Tostada",min:24,max:26},{n:"Tercio 1906",min:24,max:36},
+    {n:"Tercio Alhambra",min:24,max:36},{n:"Agua 1.5 Lt",min:6,max:8}
+  ],
+  "CAMARA 5 — Aquarius y Especiales": [
+    {n:"Aquarius Naranja",min:12,max:16},{n:"Aquarius Limón",min:12,max:16},
+    {n:"Aquarius Melocotón",min:10,max:15},{n:"Fuz Tea",min:10,max:15},
+    {n:"Tercio Estrella Sin Gluten",min:10,max:12},{n:"Tercio Readler",min:10,max:15}
+  ],
+  "NEVERA — Vinos Tintos": [
+    {n:"Pina Fidelis Crianza",min:2,max:2},{n:"Quadis",min:3,max:6},
+    {n:"Tintilla",min:2,max:2},{n:"NOC Tinto",min:2,max:2},
+    {n:"Enrique Mendoza",min:2,max:2},{n:"Quinta de Aves",min:1,max:2}
+  ],
+  "NEVERA — Copeo Tintos": [
+    {n:"Pinna Fidelis Roble",min:6,max:8},{n:"Borsao",min:3,max:5},{n:"Bordón Rioja Crianza",min:3,max:5},{n:"El Vínculo",min:3,max:5}
+  ],
+  "NEVERA GRANDE 1906": [
+    {n:"Copas Dobles Estrella Frías",min:50,max:60},{n:"Aceitunas",min:1,max:1},{n:"Tónica Schweppes",min:10,max:15},{n:"Agua Cabreiroa 500ml",min:10,max:12},
+    {n:"Agua con gas Cabreiroa 500ml",min:5,max:7},{n:"Agua Aquabona 330ml",min:10,max:12},
+    {n:"Agua Cabreiroa 1ltr",min:12,max:14},{n:"Mosto",min:2,max:5},
+    {n:"Zumo de Piña",min:2,max:5},{n:"Zumo de Naranja",min:2,max:5},{n:"Zumo de Melocotón",min:2,max:5}
+  ],
+  "BARRA — Material de trabajo": [
+    {n:"Servilletas Largas Negras",min:2,max:3},{n:"Servilletas Coctel Negras",min:3,max:4},
+    {n:"Bandejas Servicio",min:3,max:4},{n:"Posavasos Estrella",min:20,max:40},
+    {n:"Vasos de Agua",min:10,max:20},{n:"Vasos de Sidra",min:20,max:32},
+    {n:"Barril Estrella 50ltr",min:1,max:2},{n:"CO2 Botella",min:1,max:1},
+    {n:"Cartas Comida",min:20,max:20},{n:"Cartas Cócteles",min:10,max:20},
+    {n:"TPV + Cajón",min:1,max:1},{n:"Cuaderno mermas y Bolígrafo",min:1,max:1}
+  ],
+  "SALON TERRAZA — Mobiliario": [
+    {n:"Mesas Estrella Negras",min:38,max:40},{n:"Sillas Estrella Negras",min:70,max:75},
+    {n:"Cojines Sillas",min:70,max:75},{n:"Mesas Altas Estrella",min:4,max:8},
+    {n:"Sillas Altas Estrella",min:4,max:8},{n:"Barriles NOC",min:2,max:2},
+    {n:"Manteles Grandes",min:50,max:51},{n:"Biombos y Luces columnas",min:7,max:7}
+  ]
+};
+
+// st[ek+'||'+i] = 'ok'|'nok' para productos
+// st[ek+'||innec'] = 'ok'|'nok' para la pregunta de innecesarios
+var st = {};
+var modalSec = null, modalIdx = null, modalModo = null;
+
+function encK(s){ return s.replace(/[^a-zA-Z0-9]/g,'_'); }
+
+function goAudit(){
+  mostrar('sc-audit');
+  document.getElementById('fecha').textContent = new Date().toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'});
+  construir();
+  actualizar();
+}
+
+function construir(){
+  var body = document.getElementById('audit-body');
+  body.innerHTML = '';
+  Object.keys(DB).forEach(function(sec){
+    var ek = encK(sec);
+    var okCount = 0;
+    var total = DB[sec].length + 1; // +1 por innecesarios
+    DB[sec].forEach(function(_,i){ if(st[ek+'||'+i]==='ok') okCount++; });
+    if(st[ek+'||innec']==='ok') okCount++;
+
+    var card = document.createElement('div');
+    card.className = 'section-card';
+
+    // items normales
+    var itemsHTML = DB[sec].map(function(item,i){
+      var v = st[ek+'||'+i];
+      var rowCls = v==='ok' ? ' st-ok' : v==='nok' ? ' st-nok' : '';
+      var okOn = v==='ok' ? ' on' : '';
+      var nokOn = v==='nok' ? ' on' : '';
+      return '<div class="item-row'+rowCls+'">' +
+        '<div class="item-info">' +
+          '<div class="item-name">'+item.n+'</div>' +
+          '<div class="item-range">mín '+item.min+' · máx '+item.max+'</div>' +
+        '</div>' +
+        '<div class="btn-group">' +
+          '<button class="btn-ok'+okOn+'" onclick="marcar(\''+ek+'\',\''+i+'\',\'ok\')">✓</button>' +
+          '<button class="btn-nok'+nokOn+'" onclick="marcar(\''+ek+'\',\''+i+'\',\'nok\')">✗</button>' +
+        '</div>' +
+        '<button class="btn-edit" onclick="abrirEditar(\''+sec+'\','+i+')">✏️</button>' +
+      '</div>';
+    }).join('');
+
+    // pregunta innecesarios al final
+    var vi = st[ek+'||innec'];
+    var innecCls = vi==='ok' ? ' st-ok' : vi==='nok' ? ' st-nok' : '';
+    var innecOkOn = vi==='ok' ? ' on' : '';
+    var innecNokOn = vi==='nok' ? ' on' : '';
+    var innecHTML =
+      '<div class="innec-row'+innecCls+'">' +
+        '<div class="innec-label">' +
+          '<div class="innec-title">🔍 ¿Zona libre de innecesarios?</div>' +
+          '<div class="innec-sub">Solo debe haber lo que está en la lista</div>' +
+        '</div>' +
+        '<div class="btn-group">' +
+          '<button class="btn-ok'+innecOkOn+'" onclick="marcar(\''+ek+'\',\'innec\',\'ok\')" title="Sí, limpia">✓</button>' +
+          '<button class="btn-nok'+innecNokOn+'" onclick="marcar(\''+ek+'\',\'innec\',\'nok\')" title="No, hay innecesarios">✗</button>' +
+        '</div>' +
+      '</div>';
+
+    card.innerHTML =
+      '<div class="sec-head">' +
+        '<h3 onclick="toggleSec(this.parentElement.parentElement)">'+sec+'</h3>' +
+        '<div class="sec-actions">' +
+          '<span class="sec-ok-count">'+okCount+'/'+total+'</span>' +
+          '<button class="btn-add-sec" onclick="abrirNuevo(\''+sec+'\')" title="Añadir producto">+</button>' +
+          '<span class="chevron" onclick="toggleSec(this.parentElement.parentElement.parentElement)">▾</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="items-wrap">'+itemsHTML+innecHTML+'</div>';
+    body.appendChild(card);
+  });
+}
+
+function toggleSec(card){ card.classList.toggle('collapsed'); }
+
+function marcar(ek, i, val){
+  var k = ek+'||'+i;
+  st[k] = (st[k]===val) ? null : val;
+  construir();
+  actualizar();
+}
+
+function contarTodo(){
+  var ok=0, nok=0, total=0;
+  var issues=[];
+  Object.keys(DB).forEach(function(sec){
+    var ek=encK(sec);
+    // productos
+    DB[sec].forEach(function(item,i){
+      total++;
+      var v=st[ek+'||'+i];
+      if(v==='ok') ok++;
+      else if(v==='nok'){nok++; issues.push({n:item.n, sec:sec, tipo:'producto'});}
+    });
+    // innecesarios
+    total++;
+    var vi=st[ek+'||innec'];
+    if(vi==='ok') ok++;
+    else if(vi==='nok'){nok++; issues.push({n:'Innecesarios en zona', sec:sec, tipo:'innec'});}
+  });
+  return {ok:ok,nok:nok,total:total,issues:issues};
+}
+
+function actualizar(){
+  var c=contarTodo();
+  var rev=c.ok+c.nok, pen=c.total-rev;
+  var pct=rev>0?Math.round((c.ok/rev)*100):0;
+  document.getElementById('s-ok').textContent=c.ok;
+  document.getElementById('s-nok').textContent=c.nok;
+  document.getElementById('s-pen').textContent=pen;
+  document.getElementById('prog').style.width=(c.total>0?Math.round((rev/c.total)*100):0)+'%';
+  document.getElementById('prog').style.background=pct>=85?'#2D6A4F':'#C8A96E';
+  document.getElementById('prog-txt').textContent=rev+' de '+c.total+' revisados';
+  var badge=document.getElementById('pct-badge');
+  badge.textContent=(rev>0?pct:0)+'%';
+  badge.className='pct-badge '+(rev===0?'neutro':pct>=85?'bueno':'malo');
+}
+
+function goObs(){
+  var c=contarTodo();
+  var rev=c.ok+c.nok;
+  var pct=rev>0?Math.round((c.ok/rev)*100):0;
+  var bueno=pct>=85;
+  var resBox=document.getElementById('res-box');
+  resBox.className='resultado-box '+(bueno?'bueno':'malo');
+  document.getElementById('res-pct').className='resultado-pct '+(bueno?'g':'r');
+  document.getElementById('res-pct').textContent=pct+'%';
+  document.getElementById('res-lbl').className='resultado-lbl '+(bueno?'g':'r');
+  document.getElementById('res-lbl').textContent=bueno?'✅ Objetivo conseguido — comisión OK':'❌ Por debajo del 85% — sin comisión';
+  var iHTML=c.issues.length===0
+    ?'<h3>Incidencias</h3><p style="font-size:13px;color:var(--muted);padding:6px 0;">🎉 Todo en orden</p>'
+    :'<h3>No OK ('+c.issues.length+')</h3>'+c.issues.map(function(x){
+        var icono=x.tipo==='innec'?'🔍':'📦';
+        return '<div class="issue-item"><div class="issue-dot"></div><div><div style="font-weight:500;">'+icono+' '+x.n+'</div><div style="font-size:11px;color:var(--muted);">'+x.sec+'</div></div></div>';
+      }).join('');
+  document.getElementById('obs-issues').innerHTML=iHTML;
+  mostrar('sc-obs');
+}
+
+function goFinal(){
+  var c=contarTodo();
+  var rev=c.ok+c.nok;
+  var pct=rev>0?Math.round((c.ok/rev)*100):0;
+  var bueno=pct>=85;
+  document.getElementById('done-icon').textContent=bueno?'🏆':'📋';
+  document.getElementById('done-titulo').textContent=bueno?'¡Objetivo conseguido!':'Auditoría completada';
+  document.getElementById('done-resumen').innerHTML='<h3>Resumen</h3>'+
+    '<div class="done-row"><span>Cumplimiento</span><span class="done-badge" style="background:'+(bueno?'var(--verde-light)':'var(--rojo-light)')+';color:'+(bueno?'var(--verde-text)':'var(--rojo-text)')+';">'+pct+'%</span></div>'+
+    '<div class="done-row"><span>✓ OK</span><span class="done-badge" style="background:var(--verde-light);color:var(--verde-text);">'+c.ok+'</span></div>'+
+    '<div class="done-row"><span>✗ No OK</span><span class="done-badge" style="background:var(--rojo-light);color:var(--rojo-text);">'+c.nok+'</span></div>'+
+    '<div class="done-row"><span>Sin revisar</span><span style="color:var(--muted);font-size:13px;">'+(c.total-rev)+'</span></div>';
+  var iHTML=c.issues.length===0
+    ?'<h3>Incidencias</h3><p style="font-size:13px;color:var(--muted);padding:6px 0;">🎉 Todo en orden</p>'
+    :'<h3>No OK ('+c.issues.length+')</h3>'+c.issues.map(function(x){
+        var icono=x.tipo==='innec'?'🔍':'📦';
+        return '<div class="issue-item"><div class="issue-dot"></div><div style="font-size:13px;font-weight:500;">'+icono+' '+x.n+' — '+x.sec+'</div></div>';
+      }).join('');
+  document.getElementById('done-issues').innerHTML=iHTML;
+  mostrar('sc-done');
+}
+
+function copiarInforme(){
+  var fecha=new Date().toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  var c=contarTodo();
+  var rev=c.ok+c.nok;
+  var pct=rev>0?Math.round((c.ok/rev)*100):0;
+  var bueno=pct>=85;
+  var obs=document.getElementById('obs-text').value.trim();
+  var lines=c.issues.map(function(x){
+    return (x.tipo==='innec'?'🔍':'❌')+' '+(x.tipo==='innec'?'Innecesarios en':'')+' '+x.n+(x.tipo!=='innec'?' ('+x.sec+')':' — '+x.sec);
+  });
+  var cambiosTxt=cambios.length>0?'\n\nCAMBIOS EN BASE DE DATOS:\n'+cambios.map(function(x){return x.txt;}).join('\n'):'';
+  var txt='🍽️ AUDITORÍA 5S LA ROLDANA — TERRAZA\n📅 '+fecha+
+    '\n\n'+(bueno?'🏆 OBJETIVO CONSEGUIDO — '+pct+'% ✅':'⚠️ SIN COMISIÓN — '+pct+'% — necesario 85%')+
+    '\n\nRESUMEN:\n✓ OK: '+c.ok+'\n✗ No OK: '+c.nok+'\n— Sin revisar: '+(c.total-rev)+
+    '\n\n'+(lines.length>0?'NO OK:\n'+lines.join('\n'):'✨ Todo en orden')+
+    cambiosTxt+
+    (obs?'\n\nOBSERVACIONES:\n'+obs:'')+
+    '\n\n— Checklist 5S La Roldana';
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(function(){
+      var btn=document.querySelector('.btn-copy');
+      btn.textContent='✓ Copiado — pégalo en WhatsApp';
+      setTimeout(function(){btn.textContent='📋 Copiar informe para WhatsApp';},3000);
+    });
+  } else { prompt('Copia este texto:',txt); }
+}
+
+/* MODAL */
+function abrirEditar(sec,i){
+  modalSec=sec; modalIdx=i; modalModo='editar';
+  var item=DB[sec][i];
+  document.getElementById('modal-titulo').textContent='Editar producto';
+  document.getElementById('modal-nombre').value=item.n;
+  document.getElementById('modal-min').value=item.min;
+  document.getElementById('modal-max').value=item.max;
+  document.getElementById('modal-btn-del').style.display='block';
+  document.getElementById('modal').style.display='flex';
+}
+function abrirNuevo(sec){
+  modalSec=sec; modalIdx=null; modalModo='nuevo';
+  document.getElementById('modal-titulo').textContent='Nuevo producto en '+sec;
+  document.getElementById('modal-nombre').value='';
+  document.getElementById('modal-min').value='';
+  document.getElementById('modal-max').value='';
+  document.getElementById('modal-btn-del').style.display='none';
+  document.getElementById('modal').style.display='flex';
+}
+function guardarModal(){
+  var n=document.getElementById('modal-nombre').value.trim();
+  var min=parseFloat(document.getElementById('modal-min').value)||1;
+  var max=parseFloat(document.getElementById('modal-max').value)||1;
+  if(!n){alert('Escribe el nombre del producto');return;}
+  if(modalModo==='editar'){
+    var anterior=DB[modalSec][modalIdx];
+    var cambioTxt='';
+    if(anterior.n!==n) cambioTxt+=' nombre: "'+anterior.n+'" → "'+n+'"';
+    if(anterior.min!==min||anterior.max!==max) cambioTxt+=' cantidades: mín '+anterior.min+'/máx '+anterior.max+' → mín '+min+'/máx '+max;
+    if(cambioTxt) cambios.push({tipo:'editar',sec:modalSec,txt:'✏️ MODIFICADO — '+(cambioTxt.trim())+' ('+modalSec+')'});
+    DB[modalSec][modalIdx]={n:n,min:min,max:max};
+  } else {
+    DB[modalSec].push({n:n,min:min,max:max});
+    cambios.push({tipo:'nuevo',sec:modalSec,txt:'➕ NUEVO — '+n+' · mín '+min+' máx '+max+' ('+modalSec+')'});
+  }
+  cerrarModal(); construir(); actualizar();
+}
+function eliminarModal(){
+  if(confirm('¿Eliminar "'+DB[modalSec][modalIdx].n+'"?')){
+    var ek=encK(modalSec);
+    cambios.push({tipo:'eliminar',sec:modalSec,txt:'🗑 ELIMINADO — '+DB[modalSec][modalIdx].n+' ('+modalSec+')'});
+    DB[modalSec].splice(modalIdx,1);
+    var nuevo={};
+    Object.keys(st).forEach(function(k){ if(k.indexOf(ek+'||')!==0) nuevo[k]=st[k]; });
+    st=nuevo;
+    cerrarModal(); construir(); actualizar();
+  }
+}
+function cerrarModal(){ document.getElementById('modal').style.display='none'; }
+function cerrarModalFuera(e){ if(e.target===document.getElementById('modal')) cerrarModal(); }
+function resetAll(){ if(confirm('¿Reiniciar la auditoría?')){ st={}; cambios=[]; construir(); actualizar(); } }
+function goStart(){ st={}; cambios=[]; document.getElementById('obs-text').value=''; mostrar('sc-intro'); }
+function mostrar(id){
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
+  document.getElementById(id).classList.add('active');
+}
+</script>
+</body>
+</html>
